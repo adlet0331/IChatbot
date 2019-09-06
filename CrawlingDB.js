@@ -82,7 +82,7 @@ exports.MealCrawling = function(){
         }
         console.log('Meal Crawling is End');
     });
-}
+};
 
 exports.WeatherCrawling =  function(){
     var kr = moment().tz('Asia/Seoul');

@@ -16,11 +16,17 @@ arr = 'abcdefghijklmnopqrstuvwx'
 
 //console.log(moment().tz('Asia/Seoul').format('MM-DD hh:mm'));
 
+let url = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"
+CheerioJttpcli.set('headers', {
+    'user-agent' : url,
+    'Accept-Charset': 'utf-8'
+});
+
 CheerioJttpcli.fetch(
     "https://www.google.com/search"
     ,{q:"인천광역시 연수구 송도동 미세먼지"}
     ,(err, $, res, body)=>{
-        var restring;
+        console.log(body);
         let Lista = $("div.uRiMSd").find(".ha9jJe.gsrt");
         console.log($(Lista[0]).text());
         let Listb = $("div.gMZXLc").find(".dGcunf.gsrt");
