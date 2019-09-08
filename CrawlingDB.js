@@ -116,14 +116,12 @@ exports.WeatherCrawling =  function(){
         var NaverUrl = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EC%86%A1%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&oquery=%EC%9D%B8%EC%B2%9C%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&tqi=UUu0dwprvTVsstspvMGssssssvN-008570"
         CheerioJttpcli.fetch(NaverUrl, {} , function(err, $, res, body){
                 var Classes = $("div.main_box.expand").find(".air_detail").children();
-                var restring2 = ''
-                restring2 = restring2 + $(Classes[0]).find(".state_info").text();
-                restring2 = restring2 + '\n'+$(Classes[0]).find(".weather").text();
-                restring2 = restring2 + '\n'+$(Classes[2]).find(".state_list").text();
                 var docc2 = {
                     page : 'Naver',
                     time : kr.format('MM/DD - hh:mm'),
-                    text : restring2
+                    dust : $(Classes[0]).find(".state_info").text(),
+                    temperature :  $(Classes[0]).find(".weather").text(),
+                    elements : +$(Classes[2]).find(".state_list").text()
                 }
                 var CrawledNaver =  db.collection('Weather').find({page : 'Naver'});
                 if(CrawledNaver==null){

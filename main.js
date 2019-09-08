@@ -43,7 +43,7 @@ function WeatherDbUpdate(){
 
 //Post 요청 라우팅
 app.post('/', function(req, res){
-  BODY = Meal_body // req.body
+  BODY = req.body
   if (BODY.intent.name = "현재 미세먼지 데이터 제공"){
     ResponseBody = Func.GetWeather(); //MealWeather_function에서 받아옴
     res.send(ResponseBody)
