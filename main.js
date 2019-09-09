@@ -42,14 +42,14 @@ function WeatherDbUpdate(){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Post 요청 라우팅
-app.post('/', function(req, res){
+app.post('/', async function(req, res){
   BODY = req.body
   if (BODY.intent.name = "현재 미세먼지 데이터 제공"){
-    ResponseBody = Func.GetWeather(); //MealWeather_function에서 받아옴
+    ResponseBody = await Func.GetWeather(); //MealWeather_function에서 받아옴
     res.send(ResponseBody)
   } 
   if (BODY.intent.name = "급식"){
-    ResponseBody = Func.GetMeal(BODY); //MealWeather_function에서 받아옴
+    ResponseBody = await Func.GetMeal(BODY); //MealWeather_function에서 받아옴
     res.send(ResponseBody);
   } 
 });

@@ -28,7 +28,7 @@ exports.GetMeal = function(BODY){
   Client.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true }, async function (err, client) {
     db = client.db('IChatbot');
     if (err) throw err;
-      var meal =  db.collection('Meal').find({date : kr.format('MMDD')});
+      var meal = await db.collection('Meal').find({date : kr.format('MMDD')});
       if(BODY.action.params.meal=="아침"){
         if(meal.morning == null) sendmessage+="조식이 없는 날입니다";
         else sendmessage+=meal.morning;
@@ -63,8 +63,12 @@ exports.GetMeal = function(BODY){
 
 exports.GetWeather = function(){
   //데이터베이스에서 정보 불러오기
-
-    sendmessage = "맑음"
+  var sendmessage = new String();
+  Client.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true }, async function(err, client){
+    var DbWeather = client.db('IChatbot').collection('Weather');
+    var WeatherOBject = await DbWeather.find({page : 'Naver'});
+    sendmessage += '크롤링 한 시점(30분마다 갱신): ' + WeatherOBject.time + '\n\n[미세먼지]\n' + WeatherOBject.dust + '\n\n[세부정보]\n' + WeatherOBject.elements;
+  });
   var responseBody = {
     'version': '2.0',
       'template': {
@@ -77,5 +81,5 @@ exports.GetWeather = function(){
          ]
       }
     };
-    return responseBody;
+  return responseBody;
 };
