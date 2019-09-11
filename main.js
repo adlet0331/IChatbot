@@ -6,7 +6,6 @@ const logger = require('morgan');
 const moment = require('moment-timezone');
 const School = require('node-school-kr'); 
 const mongodb = require('mongodb');
-const mongoose = require('mongoose');
 //파일 내 모듈
 var body = require('./Request_body');
 var Func = require('./MealWeather_function');
@@ -22,9 +21,6 @@ app.use(logger('dev', {}));
 //body-parser 설정
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
-var Meal_body = body.meal_body //현재는 테스트용
-var Weather_body = body.weather_body//Request_body에서 받아옴
 
 var MealCrawling = Crawling.MealCrawling//웹 크로링 후 DB에 저장하는 함수
 var WeatherCrawling = Crawling.WeatherCrawling//웹 크로링 후 DB에 저장하는 함수
@@ -42,14 +38,20 @@ function WeatherDbUpdate(){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Post 요청 라우팅
-app.post('/', async function(req, res){
-  BODY = Weather_body
-  if (BODY.intent.name = "현재 미세먼지 데이터 제공"){
-    Func.GetWeather(res); //MealWeather_function에서 받아옴
-  } 
-  if (BODY.intent.name = "급식"){
-    var ResponseBody = Func.GetMeal(BODY); //MealWeather_function에서 받아옴
-    res.send(ResponseBody);
+app.post('/', function(req, res){
+  BODY = body.meal_body;
+  if (BODY.intent.name = "미세먼지"){
+    Func.GetWeather(function(message){
+      console.log(message);
+      var responseBody = {'version': '2.0','template': {'outputs': [{'simpleText': {'text': message}}]}};
+      res.send(responseBody);
+    }); //MealWeather_function에서 받아옴
+  } else if (BODY.intent.name = "급식"){
+    Func.GetMeal(BODY, function(message){
+      console.log(message);
+      var responseBody = {'version': '2.0','template': {'outputs': [{'simpleText': {'text': message}}]}};
+      res.send(responseBody);
+    });
   } 
 });
 

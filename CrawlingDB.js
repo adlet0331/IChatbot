@@ -4,7 +4,6 @@ const moment = require('moment-timezone');
 const School = require('node-school-kr'); 
 const CheerioJttpcli = require('cheerio-httpcli');
 const Client = require('mongodb').MongoClient;
-const mongoose = require('mongoose');
 
 //불러오는 모듈 및 기본 설정들. 건들 ㄴ
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

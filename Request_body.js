@@ -1,11 +1,11 @@
-//Kakao i Open Builser의 포멧을 따와서 테스트용으로 사용
 
+//Kakao i Open Builser의 포멧을 따와서 테스트용으로 사용
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.weather_body = {
   "intent": {
     "id": "eb9dm8c4cuklb28a3ab0n8mh",
-    "name": "현재 미세먼지 데이터 제공"
+    "name": "미세먼지"
   },
   "userRequest": {
     "timezone": "Asia/Seoul",
@@ -14,7 +14,7 @@ exports.weather_body = {
     },
     "block": {
       "id": "eb9dm8c4cuklb28a3ab0n8mh",
-      "name": "현재 미세먼지 데이터 제공"
+      "name": "미세먼지"
     },
     "utterance": "미세먼지",
     "lang": null,
