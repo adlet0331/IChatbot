@@ -28,23 +28,23 @@ exports.GetMeal = function (BODY, callbackFunc) {
     db = client.db('ichatbotdb');
     if (err) throw err;
     var meal = await db.collection('Meal').findOne({ date: kr.format('MMDD') });
+    var mtext = new String();
     if (BODY.action.params.meal == "아침") {
-      if (meal.morning == null) sendmessage += "조식이 없는 날입니다";
-      else sendmessage += meal.morning;
-    } else if (BODY.action.params.meal == '점심') {
-      if (meal.lunch == null) sendmessage += "중식이 없는 날입니다";
-      else sendmessage += meal.lunch;
-    } else if (BODY.action.params.meal == '저녁') {
-      if (meal.evening == null) sendmessage += "석식이 없는 날입니다";
-      else sendmessage += sendmessage = meal.evening;
-    } else {
-      var mtext = meal.morning + meal.lunch + meal.evening;
-      if (mtext == null) mtext = '급식이 없는 날입니다'
-      sendmessage += mtext;
-    }
+      if (meal.morning == null) mtext += "조식이 없는 날입니다";
+      else mtext += meal.morning;
+    } else if (BODY.action.params.meal == "점심") {
+      if (meal.lunch == null) mtext += "중식이 없는 날입니다";
+      else mtext += meal.lunch;
+    } else if (BODY.action.params.meal == "저녁") {
+      if (meal.evening == null) mtext += "석식이 없는 날입니다";
+      else mtext += mtext = meal.evening;
+    } else if (BODY.action.params.meal == '급식'){
+      mtext += meal.morning + meal.lunch + meal.evening;
+      if(meal.morning == null && meal.lunch == null && meal.evening == null) mtext +='급식이 없는 날입니다'
+    } else;
+    sendmessage += mtext;
+    callbackFunc(sendmessage);
   });
-  console.log(sendmessage)
-  callbackFunc(sendmessage);
 };
 
 exports.GetWeather = function (callbackFunc) {
