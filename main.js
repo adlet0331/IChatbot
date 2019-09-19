@@ -5,8 +5,6 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const moment = require('moment-timezone');
 const School = require('node-school-kr'); 
-const mongodb = require('mongodb');
-const mongoose = require('mongoose');
 //파일 내 모듈
 var body = require('./Request_body');
 var Func = require('./MealWeather_function');
