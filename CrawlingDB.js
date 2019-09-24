@@ -1,23 +1,16 @@
-// 웹에서 급식, 날씨 크롤링해서 DB에 저장해주는 함수들
-
-const moment = require('moment-timezone');
-const School = require('node-school-kr'); 
-const CheerioJttpcli = require('cheerio-httpcli');
-const Client = require('mongodb').MongoClient;
-const mongoose = require('mongoose');
 
 //불러오는 모듈 및 기본 설정들. 건들 ㄴ
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-exports.MealCrawling = function(){
+exports.MealCrawling = function () {
     //학교 설정 
     const school = new School();
     school.init(School.Type.HIGH, School.Region.INCHEON, 'E100002238');
     //하루 전 ~ 7일 후 까지의 날짜 객체 배열에 넣어주기
     var CrawlingDate = new Array(10);
-    for(var i=-2;i<9;i++){
-        CrawlingDate[i+2] = new Date();
-        CrawlingDate[i+2].setDate(CrawlingDate[i+2].getDate()+i);
+    for (var i = -2; i < 9; i++) {
+        CrawlingDate[i + 2] = new Date();
+        CrawlingDate[i + 2].setDate(CrawlingDate[i + 2].getDate() + i);
     }
     //DB에 연결
     var databaseUrl = 'mongodb://localhost:27017';
@@ -83,34 +76,3 @@ exports.MealCrawling = function(){
         console.log('Meal Crawling is End');
     });
 };
-
-exports.WeatherCrawling =  function(){
-    var kr = moment().tz('Asia/Seoul');
-    databaseUrl = 'mongodb://localhost:27017';
-    Client.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, client){
-        db = client.db('IChatbot')
-        if (err) throw err;
-        console.log("\n\nconnected" + db + '  Weather Crawling is doing...');
-        //네이버 '송도 미세먼지' 검색 페이지
-        var NaverUrl = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EC%9D%B8%EC%B2%9C+%EC%86%A1%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&oquery=%EC%86%A1%EB%8F%84%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&tqi=UUThZwprvmsssKbpUm0ssssssth-201323"
-        CheerioJttpcli.fetch(NaverUrl, {} , function(err, $, res, body){
-                var Classes = $("div.main_box.expand").find(".air_detail").children();
-                var docc2 = {
-                    page : 'Naver',
-                    time : kr.format('MM/DD - hh:mm'),
-                    dust : $(Classes[0]).find(".state_info").text(),
-                    temperature :  $(Classes[0]).find(".weather").find(".weather_box").find(".num").text(),
-                    elements : $(Classes[2]).find(".state_list").text()
-                }
-                var CrawledNaver =  db.collection('Weather').find({page : 'Naver'});
-                if(CrawledNaver==null){
-                    db.collection('Weather').insertOne(docc2);
-                } else {
-                     db.collection('Weather').deleteOne({page : 'Naver'});
-                    db.collection('Weather').insertOne(docc2);
-                }
-                console.log('Weather Crawling is End');
-        });
-    });
-};
-
