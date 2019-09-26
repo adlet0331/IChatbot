@@ -29,11 +29,10 @@ app.post('/', function(req, res){
   if (BODY.intent.name = "미세먼지"){
     ResponseBody = Func.GetWeather(); //MealWeather_function에서 받아옴
     res.send(ResponseBody)
-  } 
-  if (BODY.intent.name = "급식"){
+  } else if (BODY.intent.name = "급식"){
     ResponseBody = Func.GetMeal(BODY); //MealWeather_function에서 받아옴
     res.send(ResponseBody);
-  } 
+  } else;
 });
 
 //서버 확인 페이지 --> 추후 웹페이지 개설 예정

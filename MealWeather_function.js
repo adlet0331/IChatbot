@@ -8,6 +8,9 @@ const CheerioJttpcli = require('cheerio-httpcli');
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.GetMeal = function (BODY) {
+  //학교 설정 
+  const school = new School();
+  school.init(School.Type.HIGH, School.Region.INCHEON, 'E100002238');
   //날짜 받아오기
   var currentDate = new Date();
   var kr = moment(currentDate).tz('Asia/Seoul');
@@ -22,28 +25,35 @@ exports.GetMeal = function (BODY) {
   if (BODY.action.params.date == '6일 후') currentDate.setDate(currentDate.getDate() + 6);
   if (BODY.action.params.date == '7일 후') currentDate.setDate(currentDate.getDate() + 7);
   kr = moment(currentDate).tz('Asia/Seoul');
+  //Meal에 getmeal 한 json 결과 넣기
+  var Meal = await school.getMeal(kr.year(), kr.month() + 1, kr.date());
+  var text = Meal[kr.date()];
+  var indexarr = [text.indexOf("조식"), text.indexOf("중식"), text.indexOf("석식")];
   //요청한 날짜 sendmessage에 추가
   var sendmessage = kr.format('MM월 DD일') + '\n\n';
-  //데이터베이스에서 정보 불러오기
-  Client.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true }, async function (err, client) {
-    db = client.db('IChatbot');
-    if (err) throw err;
-    var meal = await db.collection('Meal').find({ date: kr.format('MMDD') });
-    if (BODY.action.params.meal == "아침") {
-      if (meal.morning == null) sendmessage += "조식이 없는 날입니다";
-      else sendmessage += meal.morning;
-    } else if (BODY.action.params.meal == '점심') {
-      if (meal.lunch == null) sendmessage += "중식이 없는 날입니다";
-      else sendmessage += meal.lunch;
-    } else if (BODY.action.params.meal == '저녁') {
-      if (meal.evening == null) sendmessage += "석식이 없는 날입니다";
-      else sendmessage += sendmessage = meal.evening;
+  //요쳥별로 나누어서 sendmessage에 추가
+  if (BODY.action.params.meal == "아침") {
+    if (indexarr[0] == -1) {
+      sendmessage += '조식이 없는 날입니다';
     } else {
-      var mtext = meal.morning + meal.lunch + meal.evening;
-      if (mtext == null) mtext = '급식이 없는 날입니다'
-      sendmessage += mtext;
+      if (indexarr[1] == -1) {
+        sendmessage += text.substring();
+      }
+      else {
+        mealarr[0] = text.substring(0, indexarr[1] - 2);
+      }
     }
-  });
+  } else if (BODY.action.params.meal == '점심') {
+    if (indexarr[1] == -1) sendmessage += "중식이 없는 날입니다";
+    else sendmessage += text.substring(indexarr[1] - 1, indexarr[2] - 2);
+  } else if (BODY.action.params.meal == '저녁') {
+    if (indexarr[2] == -1) sendmessage += "석식이 없는 날입니다";
+    else sendmessage += text.substring(indexarr[2] - 1);
+  } else {
+    var mtext = text;
+    if (mtext == null) mtext = '급식이 없는 날입니다'
+    sendmessage += mtext;
+  }
   sendmessage += "\n\n알레르기 정보\n1.난류 2.우유 3.메밀 4.땅콩 5.대두 6.밀 7.고등어 8.게 9.새우 10.돼지고기" +
     "11.복숭아 12.토마토 13.아황산류 14.호두 15.닭고기16.쇠고기 17.오징어 18.조개류(굴,전복,홍합 포함)";
   var responseBody = {
@@ -78,7 +88,7 @@ exports.GetWeather = function () {
       callbackFunc(sendmessage);
     });
   }
-  WeatherCrawling(function(sendmessage){
+  WeatherCrawling(function (sendmessage) {
     var responseBody = {
       'version': '2.0',
       'template': {
