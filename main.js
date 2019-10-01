@@ -3,11 +3,11 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-const moment = require('moment-timezone');
-const School = require('node-school-kr'); 
+const moment = require('moment-timezone'); 
 //파일 내 모듈
 var body = require('./Request_body');
 var Func = require('./MealWeather_function');
+const School = require('./node-school-kr');
 //서버 설정
 var app = new express();
 app.set('port', process.env.PORT || 3000);

@@ -1,13 +1,13 @@
 //DB에서 급식과 날씨 데이터 가져와주는 함수들
 
 const moment = require('moment-timezone');
-const School = require('node-school-kr');
+const School = require('./node-school-kr');
 const CheerioJttpcli = require('cheerio-httpcli');
 
 //불러오는 모듈 및 기본 설정들. 건들 ㄴ
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-exports.GetMeal = function (BODY) {
+exports.GetMeal = async function (BODY) {
   //학교 설정 
   const school = new School();
   school.init(School.Type.HIGH, School.Region.INCHEON, 'E100002238');
