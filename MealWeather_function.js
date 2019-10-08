@@ -1,10 +1,10 @@
-//DB에서 급식과 날씨 데이터 가져와주는 함수들
 
 const moment = require('moment-timezone');
 const School = require('./node-school-kr');
-const CheerioJttpcli = require('cheerio-httpcli');
+const request = require('request');
+const cheerio = require('cheerio');
 
-//불러오는 모듈 및 기본 설정들. 건들 ㄴ
+//불러오는 모듈 및 기본 설정들. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.GetMeal = async function (BODY) {
@@ -27,25 +27,30 @@ exports.GetMeal = async function (BODY) {
   kr = moment(currentDate).tz('Asia/Seoul');
   //Meal에 getmeal 한 json 결과 넣기
   var Meal = await school.getMeal(kr.year(), kr.month() + 1, kr.date());
-  var text = Meal[kr.date()];
+  var text = Meal.menu;
   var indexarr = [text.indexOf("조식"), text.indexOf("중식"), text.indexOf("석식")];
   //요청한 날짜 sendmessage에 추가
   var sendmessage = kr.format('MM월 DD일') + '\n\n';
   //요쳥별로 나누어서 sendmessage에 추가
-  if (BODY.action.params.meal == "아침") {
+  if (BODY.action.params.meal == '아침') {
     if (indexarr[0] == -1) {
       sendmessage += '조식이 없는 날입니다';
     } else {
       if (indexarr[1] == -1) {
-        sendmessage += text.substring();
-      }
-      else {
+        sendmessage += text.substring(indexarr[0], indexarr[2]-2);
+      } else {
         mealarr[0] = text.substring(0, indexarr[1] - 2);
       }
     }
   } else if (BODY.action.params.meal == '점심') {
     if (indexarr[1] == -1) sendmessage += "중식이 없는 날입니다";
-    else sendmessage += text.substring(indexarr[1] - 1, indexarr[2] - 2);
+    else{
+      if (indexarr[2]==-1){
+        sendmessage += text.substring(indexarr[1]-1,-1);
+      } else {
+        sendmessage += text.substring(indexarr[1] - 1, indexarr[2] - 2);
+      }
+    } 
   } else if (BODY.action.params.meal == '저녁') {
     if (indexarr[2] == -1) sendmessage += "석식이 없는 날입니다";
     else sendmessage += text.substring(indexarr[2] - 1);
@@ -71,36 +76,41 @@ exports.GetMeal = async function (BODY) {
   return responseBody;
 };
 
-exports.GetWeather = function () {
-  var kr = moment().tz('Asia/Seoul');
-  //네이버 '송도 미세먼지' 검색 페이지
-  var naverdoc;
-  var NaverUrl = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EC%9D%B8%EC%B2%9C+%EC%86%A1%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&oquery=%EC%86%A1%EB%8F%84%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&tqi=UUThZwprvmsssKbpUm0ssssssth-201323"
-  var WeatherCrawling = function (callbackFunc) {
-    CheerioJttpcli.fetch(NaverUrl, {}, function (err, $, res, body) {
+exports.GetWeather = async function () {
+  //네이버 검색 창
+  var url = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EC%9D%B8%EC%B2%9C+%EC%86%A1%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&oquery=%EC%86%A1%EB%8F%84%EB%8F%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&tqi=UUThZwprvmsssKbpUm0ssssssth-201323"
+  try {
+      let body = await new Promise((resolve, reject) => {
+          request(url, (err, res, body) => {
+              if (err) {
+                  reject(err)
+              }
+              resolve(body)
+          })
+      })
+
+      let $ = cheerio.load(body, { decodeEntities: false })
+
       var Classes = $("div.main_box.expand").find(".air_detail").children();
-      naverdoc = {
-        dust: $(Classes[0]).find(".state_info").text(),
-        temperature: $(Classes[0]).find(".weather").find(".weather_box").find(".num").text(),
-        elements: $(Classes[2]).find(".state_list").text()
-      };
-      var sendmessage = '미세먼지: ' + naverdoc.dust + '\n 현재 기온: ' + naverdoc.temperature + '\n 미세먼지 현황:\n' + naverdoc.elements;
-      callbackFunc(sendmessage);
-    });
-  }
-  WeatherCrawling(function (sendmessage) {
-    var responseBody = {
-      'version': '2.0',
-      'template': {
-        'outputs': [
-          {
-            'simpleText': {
-              'text': sendmessage
+      var sendmessage = $(Classes[0]).find(".state_info").text() + '\n\n현재 기온: ' + $(Classes[0]).find(".weather").find(".weather_box").find(".num").text() + '\n\n[세부정보]\n' + $(Classes[2]).find(".state_list").text()
+      var responseBody = {
+        'version': '2.0',
+        'template': {
+          'outputs': [
+            {
+              'simpleText': {
+                'text': sendmessage
+              }
             }
-          }
-        ]
-      }
-    };
-    return responseBody;
-  });
+          ]
+        }
+      };
+      return(responseBody)
+  } catch (e) {
+      /* 에러 핸들링 */
+      console.error(e)
+      return {}
+  }
 };
+
+      
