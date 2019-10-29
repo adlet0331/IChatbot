@@ -92,7 +92,7 @@ exports.GetWeather = async function () {
       let $ = cheerio.load(body, { decodeEntities: false })
 
       var Classes = $("div.main_box.expand").find(".air_detail").children();
-      var sendmessage = $(Classes[0]).find(".state_info").text() + '\n\n현재 기온: ' + $(Classes[0]).find(".weather").find(".weather_box").find(".num").text() + '\n\n[세부정보]\n' + $(Classes[2]).find(".state_list").text()
+      var sendmessage = "[미세먼지]\n" + $(Classes[0]).find(".state_info").text() + '\n\n[현재 기온]\n ' + $(Classes[0]).find(".weather").find(".weather_box").find(".num").text() + '\n\n[미세먼지 요소별 세부정보]\n' + $(Classes[2]).find(".state_list").text()
       var responseBody = {
         'version': '2.0',
         'template': {
