@@ -14,7 +14,7 @@
         "express": "^4.16.4",
         "expresss": "0.0.0",
         "http": "0.0.0",
-        "moment": "^2.24.0",
+        "moment": "^2.29.4",
         "moment-timezone": "^0.5.26",
         "node-school-kr": "^2.1.2"
     }
