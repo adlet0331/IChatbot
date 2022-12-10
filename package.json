@@ -11,7 +11,7 @@
     "dependencies": {
         "body-parser": "^1.19.0",
         "cheerio-httpcli": "^0.7.4",
-        "express": "^4.16.4",
+        "express": "^4.17.3",
         "expresss": "0.0.0",
         "http": "0.0.0",
         "moment": "^2.24.0",
